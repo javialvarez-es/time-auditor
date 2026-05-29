@@ -25,8 +25,8 @@ export function ResumenView() {
   const now = useNowTick(true);
 
   const inRange = useMemo(
-    () => sessionsInRange(sessions, mode, anchor, now),
-    [sessions, mode, anchor, now],
+    () => sessionsInRange(sessions, mode, anchor),
+    [sessions, mode, anchor],
   );
 
   const totals = useMemo(

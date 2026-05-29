@@ -48,7 +48,7 @@ export function SummaryChart({ totals }: Props) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number) => formatDuration(value)}
+            formatter={(value) => formatDuration(Number(value))}
           />
         </PieChart>
       </ResponsiveContainer>

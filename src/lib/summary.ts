@@ -17,7 +17,6 @@ export function sessionsInRange(
   sessions: Session[],
   mode: RangeMode,
   anchor: Date,
-  now: Date = new Date(),
 ): Session[] {
   const rangeStart =
     mode === "day" ? startOfLocalDay(anchor) : startOfLocalWeek(anchor);
