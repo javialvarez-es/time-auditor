@@ -64,3 +64,19 @@ export function sessionsForLocalDay(
         new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime(),
     );
 }
+
+/** Sesiones que solapan con la semana [weekStart, weekStart + 7 días). */
+export function sessionsIntersectingWeek(
+  sessions: Session[],
+  weekStart: Date,
+  now: Date = new Date(),
+): Session[] {
+  const rangeStart = startOfLocalWeek(weekStart);
+  const rangeEnd = addDays(rangeStart, 7);
+
+  return sessions.filter((s) => {
+    const started = new Date(s.startedAt);
+    const ended = s.endedAt ? new Date(s.endedAt) : now;
+    return started < rangeEnd && ended > rangeStart;
+  });
+}

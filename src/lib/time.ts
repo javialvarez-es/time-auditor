@@ -80,6 +80,41 @@ export function formatDayLabel(date: Date): string {
   });
 }
 
+/** Rango de semana para el encabezado del calendario (ej. "26 may – 1 jun"). */
+export function formatWeekRange(weekStart: Date): string {
+  const weekEnd = addDays(startOfLocalDay(weekStart), 6);
+  const opts: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "short",
+  };
+  const startStr = weekStart.toLocaleDateString(undefined, opts);
+  const endStr = weekEnd.toLocaleDateString(undefined, opts);
+  return `${startStr} – ${endStr}`;
+}
+
+/** Día corto para cabecera de columna (ej. "lun"). */
+export function formatShortWeekday(date: Date): string {
+  return date.toLocaleDateString(undefined, { weekday: "short" });
+}
+
 export function toUtcIso(date: Date = new Date()): string {
   return date.toISOString();
+}
+
+/** Combina fecha y hora en calendario local → ISO UTC. */
+export function localDateTimeToUtcIso(
+  dateKey: string,
+  timeHHMM: string,
+): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const [h, min] = timeHHMM.split(":").map(Number);
+  return new Date(y, m - 1, d, h, min, 0, 0).toISOString();
+}
+
+/** HH:mm en hora local a partir de un instante UTC. */
+export function utcIsoToLocalTimeHHMM(isoUtc: string): string {
+  const d = new Date(isoUtc);
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${min}`;
 }

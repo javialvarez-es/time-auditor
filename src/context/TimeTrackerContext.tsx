@@ -15,7 +15,11 @@ import { getActiveSession } from "@/lib/session-logic";
 import { createClient } from "@/lib/supabase/client";
 import {
   addActivityDb,
+  addManualSessionDb,
   deleteActivityDb,
+  deleteSessionDb,
+  updateActivityDb,
+  updateSessionDb,
   ensureDefaultActivities,
   fetchActivities,
   fetchSessions,
@@ -33,7 +37,24 @@ type TimeTrackerContextValue = {
   tapActivity: (activityId: string) => Promise<void>;
   stop: () => Promise<void>;
   addActivity: (name: string, color: string) => Promise<void>;
+  updateActivity: (
+    activityId: string,
+    name: string,
+    color: string,
+  ) => Promise<boolean>;
   deleteActivity: (activityId: string) => Promise<void>;
+  addManualSession: (
+    activityId: string,
+    startedAt: string,
+    endedAt: string,
+  ) => Promise<boolean>;
+  updateSession: (
+    sessionId: string,
+    activityId: string,
+    startedAt: string,
+    endedAt: string,
+  ) => Promise<boolean>;
+  deleteSession: (sessionId: string) => Promise<boolean>;
   refresh: () => Promise<void>;
 };
 
@@ -150,10 +171,92 @@ export function TimeTrackerProvider({ children }: { children: ReactNode }) {
     [runMutation, supabase, userId],
   );
 
+  const updateActivity = useCallback(
+    async (activityId: string, name: string, color: string) => {
+      const trimmed = name.trim();
+      if (!trimmed || !userId) return false;
+      setError(null);
+      try {
+        await updateActivityDb(supabase, activityId, trimmed, color);
+        await refresh();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al guardar");
+        return false;
+      }
+    },
+    [supabase, userId, refresh],
+  );
+
   const deleteActivity = useCallback(
     (activityId: string) =>
       runMutation(() => deleteActivityDb(supabase, activityId)),
     [runMutation, supabase],
+  );
+
+  const addManualSession = useCallback(
+    async (activityId: string, startedAt: string, endedAt: string) => {
+      if (!userId) return false;
+      setError(null);
+      try {
+        await addManualSessionDb(
+          supabase,
+          userId,
+          activityId,
+          startedAt,
+          endedAt,
+        );
+        await refresh();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al guardar");
+        return false;
+      }
+    },
+    [supabase, userId, refresh],
+  );
+
+  const updateSession = useCallback(
+    async (
+      sessionId: string,
+      activityId: string,
+      startedAt: string,
+      endedAt: string,
+    ) => {
+      if (!userId) return false;
+      setError(null);
+      try {
+        await updateSessionDb(
+          supabase,
+          sessionId,
+          activityId,
+          startedAt,
+          endedAt,
+        );
+        await refresh();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al guardar");
+        return false;
+      }
+    },
+    [supabase, userId, refresh],
+  );
+
+  const deleteSession = useCallback(
+    async (sessionId: string) => {
+      if (!userId) return false;
+      setError(null);
+      try {
+        await deleteSessionDb(supabase, sessionId);
+        await refresh();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al guardar");
+        return false;
+      }
+    },
+    [supabase, userId, refresh],
   );
 
   const value = useMemo(
@@ -166,7 +269,11 @@ export function TimeTrackerProvider({ children }: { children: ReactNode }) {
       tapActivity: handleTap,
       stop: handleStop,
       addActivity,
+      updateActivity,
       deleteActivity,
+      addManualSession,
+      updateSession,
+      deleteSession,
       refresh,
     }),
     [
@@ -178,7 +285,11 @@ export function TimeTrackerProvider({ children }: { children: ReactNode }) {
       handleTap,
       handleStop,
       addActivity,
+      updateActivity,
       deleteActivity,
+      addManualSession,
+      updateSession,
+      deleteSession,
       refresh,
     ],
   );

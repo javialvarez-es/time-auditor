@@ -121,6 +121,19 @@ export async function addActivityDb(
   if (error) throw error;
 }
 
+export async function updateActivityDb(
+  supabase: SupabaseClient,
+  activityId: string,
+  name: string,
+  color: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("activities")
+    .update({ name: name.trim(), color })
+    .eq("id", activityId);
+  if (error) throw error;
+}
+
 export async function deleteActivityDb(
   supabase: SupabaseClient,
   activityId: string,
@@ -129,5 +142,50 @@ export async function deleteActivityDb(
     .from("activities")
     .delete()
     .eq("id", activityId);
+  if (error) throw error;
+}
+
+export async function addManualSessionDb(
+  supabase: SupabaseClient,
+  userId: string,
+  activityId: string,
+  startedAt: string,
+  endedAt: string,
+): Promise<void> {
+  const { error } = await supabase.from("sessions").insert({
+    user_id: userId,
+    activity_id: activityId,
+    started_at: startedAt,
+    ended_at: endedAt,
+  });
+  if (error) throw error;
+}
+
+export async function updateSessionDb(
+  supabase: SupabaseClient,
+  sessionId: string,
+  activityId: string,
+  startedAt: string,
+  endedAt: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("sessions")
+    .update({
+      activity_id: activityId,
+      started_at: startedAt,
+      ended_at: endedAt,
+    })
+    .eq("id", sessionId);
+  if (error) throw error;
+}
+
+export async function deleteSessionDb(
+  supabase: SupabaseClient,
+  sessionId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("sessions")
+    .delete()
+    .eq("id", sessionId);
   if (error) throw error;
 }

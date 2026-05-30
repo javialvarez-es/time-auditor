@@ -14,3 +14,5 @@ export type Session = {
 };
 
 export type RangeMode = "day" | "week";
+
+export type ResumenViewMode = RangeMode | "calendar";
